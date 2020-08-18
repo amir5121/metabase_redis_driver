@@ -1,0 +1,25 @@
+# Complete list of options here: https://github.com/metabase/metabase/wiki/Metabase-Plugin-Manifest-Reference
+info:
+  name: Metabase Redis Driver
+  version: 1.0.0
+  description: Metabase Redis Driver
+driver:
+  name: redis
+  lazy-load: true
+  # https://github.com/metabase/metabase/blob/master/src/metabase/driver/common.clj
+  connection-properties:
+    - host
+    - port
+    - name: username
+      display-name: Username
+      required: false
+    - name: password
+      display-name: Password
+      required: false
+    - name: database_id
+      display-name: DatabaseId
+      required: false
+
+init:
+  - step: load-namespace
+    namespace: metabase.driver.redis
