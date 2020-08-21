@@ -2,6 +2,7 @@
   (:require [metabase.driver :as driver]
             [metabase.query-processor.store :as qp.store]
             [metabase.driver.redis.query-processor :as redis.qp]
+            [metabase.query-processor.reducible :as qp.reducible]
             [taoensso.carmine :as car
              :refer               (wcar)]))
 
@@ -43,19 +44,56 @@
 (defmethod driver/mbql->native :redis
   [_ {{source-table-id :source-table} :query, :as mbql-query}]
   (println "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-----------------------mbql-query:" mbql-query) ; NOCOMMIT
-  (:name (qp.store/table source-table-id)))
+  (:name (qp.store/table source-table-id))
+  "select * from test")
+
 ;(defmethod reducible-query :my-driver
 ;  [_ query context respond]
 ;  (with-open [results (run-query! query)]
 ;    (respond
 ;     {:cols [{:name \"my_col \"}]}
 ;     (qp.reducible/reducible-rows (get-row results) (context/canceled-chan context)))))
+;(defmethod driver/execute-reducible-query :redis
+;  [driver query context respond]
+;  (println "bbbbbbbbbbbbbbbbbbbbbbbdriver:" driver) ; NOCOMMIT
+;  (println "query:" query) ; NOCOMMIT
+;  (println "context:" context) ; NOCOMMIT
+;  (println "+++++++++++++++++++++++++++++++++++++ query:" respond) ; NOCOMMIT
+;  ({:rows    (partition 2 (range 20))
+;    :columns (for [i (range 1 3)]
+;               (format "col_%d" i))}))
+
+(defn run-query!
+  [query]
+  (println "qqqqqqqqqqqqqqqqqq" query))
+
+(defn get-row
+  [results]
+  (println "rrrrrrrrrrrrrrrrrrrrrrr" results)
+  [["aaaaa" "sssssss"]])
+
 (defmethod driver/execute-reducible-query :redis
-  [driver query context respond]
-  (println "bbbbbbbbbbbbbbbbbbbbbbbdriver:" driver) ; NOCOMMIT
-  (println "query:" query) ; NOCOMMIT
-  (println "context:" context) ; NOCOMMIT
-  (println "+++++++++++++++++++++++++++++++++++++ query:" respond) ; NOCOMMIT
-  ({:rows    (partition 2 (range 20))
-    :columns (for [i (range 1 3)]
-               (format "col_%d" i))}))
+  [_ query chans return-results]
+  (with-open [results (run-query! query)]
+    (return-results
+     {:cols [{:name "key"} {:name "value"}]}
+     ([["aaaa", "bbbb"]]))))
+;
+;(defn execute-reducible-query
+;  "Execute a `query` using the provided `do-query` function, and return the results in the usual format."
+;  [query respond]
+;  (let [headers          (.getColumnHeaders response)
+;        columns          (map header->column headers)
+;        getters          (map header->getter-fn headers)]
+;    (respond
+;     {:cols (for [col columns]
+;              (add-col-metadata query col))}
+;     (for [row (.getRows response)]
+;       (for [[data getter] (map vector row getters)]
+;         (getter data))))))
+;
+;
+;(defmethod driver/execute-reducible-query :googleanalytics
+;  [_ query _ respond]
+;  (execute-reducible-query query respond))
+
