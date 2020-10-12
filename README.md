@@ -39,3 +39,5 @@ cp target/uberjar/redis.metabase-driver.jar /path/to/metabase_source/plugins/
 cd /path/to/metabase_source
 lein run
 ```
+
+This is a work in progress and not finished yet (If you ended up on this page)
